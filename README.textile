@@ -1,0 +1,3 @@
+h1. Sistema de referência
+
+Nesta atividade interativa do tipo investigativa o usuário é desafiado a (i) escolher um sistema de coordenadas (retangular ou polar), (ii) definir um sistema de referência e (iii) determinar as coordenadas de um objeto qualquer neste sistema.
