@@ -39,7 +39,13 @@ package
 			scene.addEventListener(SceneEvent.ELEMENTS_CREATED, onSceneElementsCreated);
 			scene.addEventListener(SceneEvent.LABELS_CREATED, onSceneLabelsCreated);
 			scene.addEventListener(SceneEvent.LABEL_CHANGED, onSceneLabelChanged);	
+			scene.addEventListener(SceneEvent.REFRESH_REQUEST, onRefreshRequest);	
 			round.state = Round.STATE_CREATING;
+		}
+		
+		private function onRefreshRequest(e:SceneEvent):void 
+		{
+			startRound();
 		}
 		
 		private function onSceneLabelChanged(e:SceneEvent):void 

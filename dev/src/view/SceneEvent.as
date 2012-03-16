@@ -39,6 +39,7 @@ package view
 		static public const LABELS_CREATED:String = "labelsCreated";
 		static public const ELEMENTS_CREATED:String = "elementsCreated";
 		static public const LABEL_CHANGED:String = "labelChanged";
+		static public const REFRESH_REQUEST:String = "refreshRequest";
 		
 	}
 	

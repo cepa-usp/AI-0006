@@ -20,7 +20,7 @@ package
 		private var _state:int = -1;
 		private var _score:Number = 0;
 		private var _labels:Array = [new Label(0), new Label(1), new Label(2)];
-
+		public const MARGIN:int = 40;
 		private var AMNT_ELEMENTS:int = 8;
 		
 			
@@ -28,9 +28,6 @@ package
 		public static const STATE_WAITINGLABELS:int = 1;
 		public static const STATE_EVALUATING:int = 2;
 		public static const STATE_FINISHED:int = 3;
-		public const WIDTH:int = 700;
-		public const HEIGHT:int = 500;
-		public const MARGIN:int = 40;
 		
 		static public const EV_CREATING_ELEMENTS:String = "evCreatingElements";
 		static public const EV_WAITING_LABELS:String = "evWaitingLabels";
@@ -65,7 +62,7 @@ package
 			elements = new Vector.<Element>();
 			for (var i:int = 0; i < AMNT_ELEMENTS; i++) {
 				var el:Element = new Element();
-				findPosition(el, WIDTH/10);
+				findPosition(el, Config.WIDTH/10);
 				elements.push(el);
 			}
 			
@@ -73,8 +70,8 @@ package
 		
 		private function findPosition(el:Element, minDist:int, depth:int=0):void 
 		{
-				el.x = Math.floor((Math.random() * (WIDTH  - MARGIN*2))) + MARGIN;
-				el.y = Math.floor((Math.random() * (HEIGHT - MARGIN*2))) + MARGIN;
+				el.x = Math.floor((Math.random() * (Config.WIDTH  - MARGIN*2))) + MARGIN;
+				el.y = Math.floor((Math.random() * (Config.HEIGHT - MARGIN*2))) + MARGIN;
 				for each (var e:Element in elements) {
 					if (Math.abs(Point.distance(new Point(e.x, e.y), new Point(el.x, el.y))) < minDist && depth<10) {
 						findPosition(el, minDist, depth++);
