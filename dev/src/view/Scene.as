@@ -36,7 +36,9 @@ package view
 		private var axis:Sprite = null;
 		private var reguaOnStage:Boolean = false;
 		private var transferOnStage:Boolean = false;
-		
+		private var dragElement:ElementSprite = null;
+		private var lbPosDif:Point;
+		private var lbMove:Sprite = null;
 		
 		public function Scene() 
 		{
@@ -112,9 +114,9 @@ package view
 				if (rect.containsPoint(ptX)) {
 					posX = i;
 					j++;
-					trace(ptX, "posX=", posX)
+					//trace(ptX, "posX=", posX)
 				} else {
-					trace("saiu: ", ptX)
+					//trace("saiu: ", ptX)
 				}
 				if (rect.containsPoint(ptY)) {
 					posY = i;
@@ -241,17 +243,60 @@ package view
 			elements = new Vector.<ElementSprite>();
 			for each (var ee:Element in _round.elements) {				
 				var el:ElementSprite = new ElementSprite(new SpritePack1(), ee);
+				el.mouseChildren = false;
 				el.graphicalSymbol.gotoAndStop(Math.floor(Math.random() * el.graphicalSymbol.totalFrames));				
 				elements.push(el);
 				sprElements.addChild(el);
 				el.x = ee.x;
 				el.y = ee.y;
+				el.addEventListener(MouseEvent.MOUSE_DOWN, onElementStartDrag);
 				el.scaleX = 0.01;
 				el.scaleY = 0.01;
 				var qt:Number = 0;
 				Actuate.tween(el, 0.8 + Math.random(), { scaleX:1, scaleY:1 } ).ease(Elastic.easeInOut).onComplete(onElCreationTweenCompleted, el); 
 				
 			}
+		}
+		
+		private function onElementStartDrag(e:MouseEvent):void 
+		{
+			var el:ElementSprite = ElementSprite(e.target);
+			dragElement = el;
+			
+			stage.addEventListener(MouseEvent.MOUSE_UP, onElementMouseUp);
+			if (el.element.hasLabel) {
+				for (var i:int = 0; i < 3; i++) {
+					if (Label(round.labels[i]).element == el.element) {
+						 lbMove = Sprite(sprElements.getChildByName("lbl_" + i.toString()));
+						 lbPosDif = new Point(lbMove.x - el.x, lbMove.y - el.y);				 
+						 stage.addEventListener(Event.ENTER_FRAME, moveAttachedLabel)
+						break;
+					}
+				}
+				
+			}
+			
+			el.startDrag(true);			
+		}
+		
+		private function moveAttachedLabel(e:Event):void 
+		{
+			lbMove.x = dragElement.x + lbPosDif.x;
+			lbMove.y = dragElement.y + lbPosDif.y;
+		}
+		
+		
+		
+		private function onElementMouseUp(e:MouseEvent):void 
+		{
+			dragElement.stopDrag();
+			var ev:SceneEvent = new SceneEvent(SceneEvent.ELEMENT_MOVED);
+			ev.vars.element = dragElement.element;
+			ev.vars.position = new Point(dragElement.x, dragElement.y);			
+			dispatchEvent(ev);
+			stage.removeEventListener(MouseEvent.MOUSE_UP, onElementMouseUp);
+			stage.removeEventListener(Event.ENTER_FRAME, moveAttachedLabel)
+			//moveAxis();
 		}
 		
 		private function onElCreationTweenCompleted(el:ElementSprite):void {
@@ -277,15 +322,33 @@ package view
 			
 			
 			var ma:MenuAtividade = new MenuAtividade();
+			ma.name = "menuAtividade"
 			sprControls.addChild(ma);
 			ma.x = 10;
 			ma.y = 10;
 			workAsButton(ma.btOk, "Avaliar");
+			ma.btOk.addEventListener(MouseEvent.CLICK, onBtOkClick)
 			workAsButton(ma.btRegua, "Adicione uma régua no palco");
 			workAsButton(ma.btTransferidor, "Adicione um transferidor no palco");
 			ma.btRegua.addEventListener(MouseEvent.MOUSE_DOWN, onReguaClick)
 			ma.btTransferidor.addEventListener(MouseEvent.MOUSE_DOWN, onTransferidorClick)
 
+		}
+		
+		private function onBtOkClick(e:MouseEvent):void 
+		{
+			var ev:SceneEvent = new SceneEvent(SceneEvent.EVALUATE_REQUEST);
+			var es:ElementSprite = findElementSprite(Label(round.labels[Label.TYPE_TARGET]).element);
+			
+			var p:Point = axis.globalToLocal(new Point(es.x, es.y));
+			var objpos:Point = new Point(Label(round.labels[Label.TYPE_TARGET]).element.x, Label(round.labels[Label.TYPE_TARGET]).element.y)
+			ev.vars.targetPosition = objpos;
+			ev.vars.correctAnswerPosition = p;
+			var up:Point = new Point(0, 0);
+			up.x = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text)
+			up.y = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text)
+			ev.vars.useranswerPosition = up;
+			dispatchEvent(ev);
 		}
 		
 		private function onTransferidorClick(e:MouseEvent = null):void 
@@ -303,7 +366,7 @@ package view
 		private function onReguaClick(e:MouseEvent = null):void 
 		{
 			if (!reguaOnStage) {
-				Actuate.tween(regua, 0.8, { x:Config.WIDTH / 4, y:Config.HEIGHT / 2 } ).ease(Cubic.easeOut);
+				Actuate.tween(regua, 0.5, { x:Config.WIDTH / 4, y:Config.HEIGHT / 2 } ).ease(Cubic.easeOut);
 				reguaOnStage = true;
 				
 			} else {
