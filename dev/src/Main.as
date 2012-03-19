@@ -47,7 +47,9 @@ package
 		
 		private function onEvaluateRequest(e:SceneEvent):void 
 		{
-			round.evaluate();
+			//round.evaluate();
+			var userAnswer:Point = e.vars.useranswerPosition;
+			var correctAnswer:Point = e.vars.correctAnswerPosition;
 		}
 		
 		private function onSceneElementMoved(e:SceneEvent):void 

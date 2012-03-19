@@ -322,6 +322,7 @@ package view
 			
 			
 			var ma:MenuAtividade = new MenuAtividade();
+			ma.name = "menuAtividade"
 			sprControls.addChild(ma);
 			ma.x = 10;
 			ma.y = 10;
@@ -340,8 +341,16 @@ package view
 			var es:ElementSprite = findElementSprite(Label(round.labels[Label.TYPE_TARGET]).element);
 			
 			var p:Point = axis.globalToLocal(new Point(es.x, es.y));
-			trace(p);
-			//dispatchEvent(ev);
+
+			var objpos:Point = new Point(Label(round.labels[Label.TYPE_TARGET]).element.x, Label(round.labels[Label.TYPE_TARGET]).element.y)
+			ev.vars.targetPosition = objpos;
+			ev.vars.correctAnswerPosition = p;
+			var up:Point = new Point(0, 0);
+			up.x = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text)
+			up.y = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varY.text)
+			ev.vars.useranswerPosition = up;
+			dispatchEvent(ev);
+
 		}
 		
 		private function onTransferidorClick(e:MouseEvent = null):void 
