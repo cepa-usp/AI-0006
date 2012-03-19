@@ -50,6 +50,7 @@ package
 			//round.evaluate();
 			var userAnswer:Point = e.vars.useranswerPosition;
 			var correctAnswer:Point = e.vars.correctAnswerPosition;
+			trace(userAnswer, correctAnswer);
 		}
 		
 		private function onSceneElementMoved(e:SceneEvent):void 

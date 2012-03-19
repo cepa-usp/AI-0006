@@ -11,9 +11,12 @@ package view
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.events.TextEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.text.TextField;
 	
 	/**
 	 * ...
@@ -39,6 +42,8 @@ package view
 		private var dragElement:ElementSprite = null;
 		private var lbPosDif:Point;
 		private var lbMove:Sprite = null;
+		private var answerUser:Sprite = new Sprite;
+		private var answerUser:Sprite = new Sprite;
 		
 		public function Scene() 
 		{
@@ -124,7 +129,7 @@ package view
 				}
 				if (j == 0) break;
 			}
-			trace(ptX, posX)
+			
 			var ax:ArrowX = ArrowX(axis.getChildByName("arrowX"));
 			var ay:ArrowY = ArrowY(axis.getChildByName("arrowY"));
 			Actuate.tween(ax, 1, { x:posX} ).ease(Quad.easeOut);
@@ -332,8 +337,18 @@ package view
 			workAsButton(ma.btTransferidor, "Adicione um transferidor no palco");
 			ma.btRegua.addEventListener(MouseEvent.MOUSE_DOWN, onReguaClick)
 			ma.btTransferidor.addEventListener(MouseEvent.MOUSE_DOWN, onTransferidorClick)
+			TextField(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX).restrict = "0-9,"
+			TextField(MenuAtividade(sprControls.getChildByName("menuAtividade")).varY).restrict="0-9,"
 
 		}
+		
+
+		private function convertSceneToRound(val:Number):Number {
+			return val * 21.6;
+		}
+		private function convertRoundToScene(val:Number):Number {
+			return val / 21.6;
+		}		
 		
 		private function onBtOkClick(e:MouseEvent):void 
 		{
@@ -341,16 +356,31 @@ package view
 			var es:ElementSprite = findElementSprite(Label(round.labels[Label.TYPE_TARGET]).element);
 			
 			var p:Point = axis.globalToLocal(new Point(es.x, es.y));
+			p.y = - p.y;
 
 			var objpos:Point = new Point(Label(round.labels[Label.TYPE_TARGET]).element.x, Label(round.labels[Label.TYPE_TARGET]).element.y)
 			ev.vars.targetPosition = objpos;
 			ev.vars.correctAnswerPosition = p;
 			var up:Point = new Point(0, 0);
-			up.x = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text)
-			up.y = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varY.text)
+			if (checkFields() == false) return;
+			up.x = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text.replace(",", "."))						
+			up.y = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varY.text.replace(",", "."))
 			ev.vars.useranswerPosition = up;
 			dispatchEvent(ev);
+		}
+		
 
+		
+
+		
+		private function checkFields():Boolean {
+			if (MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text.length == 0) {
+				return false;
+			}
+			if (MenuAtividade(sprControls.getChildByName("menuAtividade")).varY.text.length == 0) {
+				return false;
+			}		
+			return true;
 		}
 		
 		private function onTransferidorClick(e:MouseEvent = null):void 
