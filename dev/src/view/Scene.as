@@ -341,6 +341,7 @@ package view
 			var es:ElementSprite = findElementSprite(Label(round.labels[Label.TYPE_TARGET]).element);
 			
 			var p:Point = axis.globalToLocal(new Point(es.x, es.y));
+<<<<<<< HEAD
 			var objpos:Point = new Point(Label(round.labels[Label.TYPE_TARGET]).element.x, Label(round.labels[Label.TYPE_TARGET]).element.y)
 			ev.vars.targetPosition = objpos;
 			ev.vars.correctAnswerPosition = p;
@@ -349,6 +350,10 @@ package view
 			up.y = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text)
 			ev.vars.useranswerPosition = up;
 			dispatchEvent(ev);
+=======
+			trace(p);
+			//dispatchEvent(ev);
+>>>>>>> d139f5c4f5a3e0566bc96b0477c8a6e67a33fb89
 		}
 		
 		private function onTransferidorClick(e:MouseEvent = null):void 

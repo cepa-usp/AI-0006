@@ -47,11 +47,15 @@ package
 		
 		private function onEvaluateRequest(e:SceneEvent):void 
 		{
+<<<<<<< HEAD
 			//round.evaluate();
 			var userAnswer:Point = e.vars.useranswerPosition;
 			var correctAnswer:Point = e.vars.correctAnswerPosition;
 			
 			
+=======
+			round.evaluate();
+>>>>>>> d139f5c4f5a3e0566bc96b0477c8a6e67a33fb89
 		}
 		
 		private function onSceneElementMoved(e:SceneEvent):void 
