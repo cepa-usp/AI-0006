@@ -28,8 +28,8 @@ package
 			//scrollRect = new Rectangle(round.WIDTH, round.HEIGHT);
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			addChild(scene);
-			scene.drawControls();
 			startRound();
+			
 		}
 		
 		private function startRound():void {
@@ -43,6 +43,8 @@ package
 			scene.addEventListener(SceneEvent.EVALUATE_REQUEST, onEvaluateRequest);	
 			round.state = Round.STATE_CREATING;
 			scene.drawCoordinates();
+			scene.drawControls();
+			
 		}
 		
 		private function onEvaluateRequest(e:SceneEvent):void 
@@ -50,7 +52,9 @@ package
 			//round.evaluate();
 			var userAnswer:Point = e.vars.useranswerPosition;
 			var correctAnswer:Point = e.vars.correctAnswerPosition;
-			trace(userAnswer, correctAnswer);
+			
+			round.evaluate(Point.distance(userAnswer, correctAnswer));			
+			
 		}
 		
 		private function onSceneElementMoved(e:SceneEvent):void 

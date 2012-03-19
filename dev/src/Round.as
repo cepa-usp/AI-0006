@@ -21,6 +21,7 @@ package
 		private var _score:Number = 0;
 		private var _labels:Array = [new Label(0), new Label(1), new Label(2)];
 		public const MARGIN:int = 40;
+		public const TOLERANCE:int = 23;
 		private var AMNT_ELEMENTS:int = 8;
 		
 			
@@ -94,7 +95,6 @@ package
 					break;
 				case STATE_EVALUATING:
 					eventDispatcher.dispatchEvent(new RoundEvent(EV_EVALUATING));
-					evaluate();
 					break;					
 				case STATE_FINISHED:
 					eventDispatcher.dispatchEvent(new RoundEvent(EV_FINISHED));		
@@ -102,8 +102,14 @@ package
 			}
 		}
 		
-		public function evaluate():void {
-			var evalObj:Element = Label(labels[Label.TYPE_TARGET]).element;
+		public function evaluate(dist:Number):void {
+			state = STATE_EVALUATING;
+			if (dist < TOLERANCE) {
+				score = 100;
+			} else {
+				score 0;
+			}
+			state = STATE_FINISHED;
 			
 		}
 		

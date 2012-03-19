@@ -14,6 +14,7 @@ package view
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
+	import flash.filters.DropShadowFilter;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.text.TextField;
@@ -29,6 +30,8 @@ package view
 		private var sprCoordinates:Sprite = new Sprite();
 		private var sprGhosts:Sprite = new Sprite();
 		private var sprControls:Sprite = new Sprite();
+		private var sprControls2:Sprite = new Sprite();
+		private var sprAnswers:Sprite = new Sprite();
 		private var sprRulers:Sprite = new Sprite();
 		private var regua:Tool_Regua = new Tool_Regua();
 		private var transferidor:Tool_Transferidor = new Tool_Transferidor();
@@ -43,16 +46,30 @@ package view
 		private var lbPosDif:Point;
 		private var lbMove:Sprite = null;
 		private var answerUser:Sprite = new Sprite;
-		private var answerUser:Sprite = new Sprite;
+		private var answerRound:Sprite = new Sprite;
+		private var blockelements:Boolean = false;
 		
 		public function Scene() 
 		{
+		addChild(new Background());
 		addChild(sprCoordinates)	
 		addChild(sprElements)
 		addChild(sprGhosts)
 		addChild(sprRulers)		
+		
+		makeAnswer();
+
+
 		addChild(sprControls);		
+		addChild(sprControls2);		
+		
 		addTools()
+		}
+		
+		private function makeAnswer():void {
+			answerUser.graphics.beginFill(0xFF0000);
+			answerUser.graphics.drawCircle(0, 0, 4)
+			
 		}
 		
 		private function addTools():void 
@@ -73,11 +90,6 @@ package view
 			var w:int = Config.WIDTH;
 			var h:int = Config.HEIGHT;
 			sprCoordinates.addChild(axis);
-			axis.graphics.lineStyle(2, 0x400040, 0.6);
-			axis.graphics.moveTo(0-w*2, 0);
-			axis.graphics.lineTo(w * 2, 0);
-			axis.graphics.moveTo(0, 0-h*2);
-			axis.graphics.lineTo(0, h * 2);
 			var arrowX:ArrowX = new ArrowX();
 			arrowX.name = "arrowX"			
 			var arrowY:ArrowY = new ArrowY();
@@ -87,6 +99,21 @@ package view
 			arrowX.x = 1000;
 			arrowY.y = -1000;
 			
+			axis.addChild(answerUser);
+			axis.addChild(answerRound);
+			drawAxis()
+		}
+		
+		public function drawAxis():void {
+			axis.graphics.clear();
+			axis.graphics.lineStyle(2, 0x400040, 0.6);
+			var w:int = Config.WIDTH;
+			var h:int = Config.HEIGHT;
+
+			axis.graphics.moveTo(0-w*2, 0);
+			axis.graphics.lineTo(axis.getChildByName("arrowX").x, 0);
+			axis.graphics.moveTo(0, h*2);
+			axis.graphics.lineTo(0, axis.getChildByName("arrowY").y);
 		}
 		
 		
@@ -132,12 +159,13 @@ package view
 			
 			var ax:ArrowX = ArrowX(axis.getChildByName("arrowX"));
 			var ay:ArrowY = ArrowY(axis.getChildByName("arrowY"));
-			Actuate.tween(ax, 1, { x:posX} ).ease(Quad.easeOut);
-			Actuate.tween(ay, 1, { y:-posY} ).ease(Quad.easeOut);
+			Actuate.tween(ax, 1, { x:posX} ).ease(Quad.easeOut).onUpdate(drawAxis);
+			Actuate.tween(ay, 1, { y: -posY } ).ease(Quad.easeOut);
 		}
 		
 		private function drawNewRound():void {
 			clearSprite(sprGhosts);
+			clearSprite(sprAnswers);
 			clearSprite(sprCoordinates);
 			clearSprite(sprElements);
 		}
@@ -258,7 +286,7 @@ package view
 				el.scaleX = 0.01;
 				el.scaleY = 0.01;
 				var qt:Number = 0;
-				Actuate.tween(el, 0.8 + Math.random(), { scaleX:1, scaleY:1 } ).ease(Elastic.easeInOut).onComplete(onElCreationTweenCompleted, el); 
+				Actuate.tween(el, 0.8 + Math.random(), { scaleX:0.6, scaleY:0.6 } ).ease(Elastic.easeInOut).onComplete(onElCreationTweenCompleted, el); 
 				
 			}
 		}
@@ -305,7 +333,8 @@ package view
 		}
 		
 		private function onElCreationTweenCompleted(el:ElementSprite):void {
-			if (elements.indexOf(el) == elements.length-1) {
+			if (elements.indexOf(el) == elements.length - 1) {
+				//el.filters = [new DropShadowFilter()]
 				dispatchEvent(new Event(SceneEvent.ELEMENTS_CREATED));	
 			}
 			
@@ -314,7 +343,9 @@ package view
 		
 		public function drawControls():void 
 		{
+			sprControls2.alpha = 0;
 			var mp:MenuPrincipal = new MenuPrincipal()
+			mp.name = "menuPrincipal";
 			sprControls.addChild(mp);
 			mp.x = Config.WIDTH - mp.width - 15;
 			mp.y = Config.HEIGHT - mp.height - 15;
@@ -324,22 +355,33 @@ package view
 			mp.btAbout.addEventListener(MouseEvent.CLICK, onBtAboutClick);
 			mp.btInstructions.addEventListener(MouseEvent.CLICK, onBtInstructionsClick);
 			mp.btRefresh.addEventListener(MouseEvent.CLICK, onBtRefreshClick);
-			
+			mp.filters = [new DropShadowFilter()]
 			
 			var ma:MenuAtividade = new MenuAtividade();
 			ma.name = "menuAtividade"
-			sprControls.addChild(ma);
+			sprControls2.addChild(ma);
+			ma.filters = [new DropShadowFilter()]
 			ma.x = 10;
 			ma.y = 10;
+			
 			workAsButton(ma.btOk, "Avaliar");
 			ma.btOk.addEventListener(MouseEvent.CLICK, onBtOkClick)
 			workAsButton(ma.btRegua, "Adicione uma régua no palco");
 			workAsButton(ma.btTransferidor, "Adicione um transferidor no palco");
 			ma.btRegua.addEventListener(MouseEvent.MOUSE_DOWN, onReguaClick)
 			ma.btTransferidor.addEventListener(MouseEvent.MOUSE_DOWN, onTransferidorClick)
-			TextField(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX).restrict = "0-9,"
-			TextField(MenuAtividade(sprControls.getChildByName("menuAtividade")).varY).restrict="0-9,"
-
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).restrict = "0-9,"
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).restrict = "0-9,"
+			
+			
+		}
+		
+		private function hideControls():void {
+			Actuate.tween(sprControls2, 0.6, {alpha:0})
+		}
+		
+		private function showControls():void {
+			Actuate.tween(sprControls2, 0.6, {alpha:1})
 		}
 		
 
@@ -360,12 +402,25 @@ package view
 
 			var objpos:Point = new Point(Label(round.labels[Label.TYPE_TARGET]).element.x, Label(round.labels[Label.TYPE_TARGET]).element.y)
 			ev.vars.targetPosition = objpos;
+			answerRound.x = objpos.x;
+			answerRound.y = objpos.y;
+			
 			ev.vars.correctAnswerPosition = p;
 			var up:Point = new Point(0, 0);
 			if (checkFields() == false) return;
-			up.x = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text.replace(",", "."))						
-			up.y = Number(MenuAtividade(sprControls.getChildByName("menuAtividade")).varY.text.replace(",", "."))
+			up.x = Number(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX.text.replace(",", "."))						
+			up.y = Number(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY.text.replace(",", "."))			
+			up.x = convertSceneToRound(up.x)
+			up.y = convertSceneToRound(up.y);
+			
+			var pp:Point = up.clone();
+			answerUser.x = pp.x;			
+			answerUser.y = -pp.y
+			answerUser.alpha = 1;
 			ev.vars.useranswerPosition = up;
+			
+			
+			
 			dispatchEvent(ev);
 		}
 		
@@ -374,10 +429,10 @@ package view
 
 		
 		private function checkFields():Boolean {
-			if (MenuAtividade(sprControls.getChildByName("menuAtividade")).varX.text.length == 0) {
+			if (MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX.text.length == 0) {
 				return false;
 			}
-			if (MenuAtividade(sprControls.getChildByName("menuAtividade")).varY.text.length == 0) {
+			if (MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY.text.length == 0) {
 				return false;
 			}		
 			return true;
@@ -425,18 +480,28 @@ package view
 		
 		private function onFinished(e:Event):void 
 		{
-			
+			showAnswer();
+		}
+		
+		private function showAnswer():void 
+		{
+			var btVerCorreta:BtRespostaCorreta = new BtRespostaCorreta();
+			sprAnswers.addChild(btVerCorreta)
+			btVerCorreta.width = Config.WIDTH /2 - btVerCorreta.width
 		}
 		
 		private function onWaitingLabels(e:Event):void 
 		{
+			blockelements = false;
 			isLabelPositioned = true;
 			moveAxis();
+			showControls();
 		}
 		
 		private function onEvaluating(e:Event):void 
 		{
-			
+			hideControls();
+			blockelements = true;
 		}
 		
 		private function onCreatingElements(e:Event):void 
