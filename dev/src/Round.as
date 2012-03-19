@@ -103,6 +103,7 @@ package
 		}
 		
 		public function evaluate():void {
+			var evalObj:Element = Label(labels[Label.TYPE_TARGET]).element;
 			
 		}
 		

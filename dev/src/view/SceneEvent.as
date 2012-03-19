@@ -8,6 +8,8 @@ package view
 	 */
 	public class SceneEvent extends Event 
 	{
+		
+		
 		private var _vars:Object = new Object();
 		
 		public function SceneEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false) 
@@ -40,7 +42,8 @@ package view
 		static public const ELEMENTS_CREATED:String = "elementsCreated";
 		static public const LABEL_CHANGED:String = "labelChanged";
 		static public const REFRESH_REQUEST:String = "refreshRequest";
-		
+		static public const ELEMENT_MOVED:String = "elementMoved";
+		static public const EVALUATE_REQUEST:String = "evaluateRequest";
 	}
 	
 }
