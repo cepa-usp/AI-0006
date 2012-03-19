@@ -52,9 +52,9 @@ package cepa.LO.view
 		}
 		
 		
-		public function changeMessageObject(tx:String) {
+		public function changeMessageObject(tx:String):void {
 			// override it
-			trace("LearningObjectScene message: ", tx);
+			//trace("LearningObjectScene message: ", tx);
 			
 		}
 		
