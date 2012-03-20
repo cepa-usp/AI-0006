@@ -2,6 +2,7 @@ package
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import view.Scene;
 	import view.SceneEvent;
@@ -27,9 +28,7 @@ package
 			//scrollRect = new Rectangle(round.WIDTH, round.HEIGHT);
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			addChild(scene);
-			scene.drawControls();
 			startRound();
-			scene.drawCoordinates()
 			
 		}
 		
@@ -39,7 +38,38 @@ package
 			scene.addEventListener(SceneEvent.ELEMENTS_CREATED, onSceneElementsCreated);
 			scene.addEventListener(SceneEvent.LABELS_CREATED, onSceneLabelsCreated);
 			scene.addEventListener(SceneEvent.LABEL_CHANGED, onSceneLabelChanged);	
+			scene.addEventListener(SceneEvent.REFRESH_REQUEST, onRefreshRequest);	
+			scene.addEventListener(SceneEvent.ELEMENT_MOVED, onSceneElementMoved);	
+			scene.addEventListener(SceneEvent.EVALUATE_REQUEST, onEvaluateRequest);	
 			round.state = Round.STATE_CREATING;
+			scene.drawCoordinates();
+			scene.drawControls();
+			
+		}
+		
+		private function onEvaluateRequest(e:SceneEvent):void 
+		{
+			//round.evaluate();
+			var userAnswer:Point = e.vars.useranswerPosition;
+			var correctAnswer:Point = e.vars.correctAnswerPosition;
+			
+			round.evaluate(Point.distance(userAnswer, correctAnswer));			
+			
+		}
+		
+		private function onSceneElementMoved(e:SceneEvent):void 
+		{
+			var element:Element = e.vars.element;
+			var pos:Point = e.vars.position;
+			element.x = pos.x;
+			element.y = pos.y;
+			scene.moveAxis();
+			
+		}
+		
+		private function onRefreshRequest(e:SceneEvent):void 
+		{
+			startRound();
 		}
 		
 		private function onSceneLabelChanged(e:SceneEvent):void 
