@@ -11,7 +11,7 @@ package cepa.LO.view
 	public class LearningObjectScene extends Sprite
 	{
 		
-		private var screenMessage:String;
+		private var screenMessage:String = " ";
 		public function LearningObjectScene() 
 		{
 			
@@ -39,7 +39,7 @@ package cepa.LO.view
 			MovieClip(e.target).gotoAndStop(5);
 		}
 		
-		private function info(e:MouseEvent):void 
+		protected function info(e:MouseEvent):void 
 		{
 			
 			setMessage(screenMessage)
@@ -54,7 +54,7 @@ package cepa.LO.view
 		
 		public function changeMessageObject(tx:String):void {
 			// override it
-			//trace("LearningObjectScene message: ", tx);
+			
 			
 		}
 		

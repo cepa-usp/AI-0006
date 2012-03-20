@@ -37,7 +37,7 @@ package view
 		private var transferidor:Tool_Transferidor = new Tool_Transferidor();
 		private var elements:Vector.<ElementSprite>;
 		private var _round:Round;
-		private var selectedLabel:ElementLabel;
+		private var selectedLabel:Sprite;
 		private var isLabelPositioned:Boolean = false;
 		private var axis:Sprite = null;
 		private var reguaOnStage:Boolean = false;
@@ -48,6 +48,7 @@ package view
 		private var answerUser:Sprite = new Sprite;
 		private var answerRound:Sprite = new Sprite;
 		private var blockelements:Boolean = false;
+		private var message:TextoExplicativo = new TextoExplicativo();
 		
 		public function Scene() 
 		{
@@ -55,15 +56,27 @@ package view
 		addChild(sprCoordinates)	
 		addChild(sprElements)
 		addChild(sprGhosts)
-		addChild(sprRulers)		
+		addChild(sprRulers)	
 		
+		addChild(sprAnswers);
 		makeAnswer();
 
 
+		addMessage();
 		addChild(sprControls);		
 		addChild(sprControls2);		
 		
+		
 		addTools()
+		}
+		
+		private function addMessage():void 
+		{
+			addChild(message);
+			message.x = 0;
+			message.y = Config.HEIGHT - message.height;
+			message.texto.text = " ";
+			
 		}
 		
 		private function makeAnswer():void {
@@ -77,6 +90,11 @@ package view
 			sprRulers.addChild(regua);
 			regua.x = Config.WIDTH / 2
 			regua.y = Config.HEIGHT * 2;
+			
+			regua.ruler.base.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para mover a régua") } );
+			regua.ruler.base.addEventListener(MouseEvent.MOUSE_OUT, info)			
+			regua.ruler.mov.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar a régua") } );
+			regua.ruler.mov.addEventListener(MouseEvent.MOUSE_OUT, info)						
 			sprRulers.addChild(transferidor);
 			transferidor.width = 40;  //Config.WIDTH / 2
 			transferidor.height = 40;  //Config.HEIGHT * 2;
@@ -99,8 +117,8 @@ package view
 			arrowX.x = 1000;
 			arrowY.y = -1000;
 			
-			axis.addChild(answerUser);
-			axis.addChild(answerRound);
+			sprAnswers.addChild(answerUser);
+			sprAnswers.addChild(answerRound);
 			drawAxis()
 		}
 		
@@ -114,6 +132,14 @@ package view
 			axis.graphics.lineTo(axis.getChildByName("arrowX").x, 0);
 			axis.graphics.moveTo(0, h*2);
 			axis.graphics.lineTo(0, axis.getChildByName("arrowY").y);
+			axis.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { 
+																			if (Math.abs(e.localX)<5) {
+																				setMessage("Eixo Y") 
+																			} else {
+																				setMessage("Eixo X") 
+																				} 																
+																			} );
+			axis.addEventListener(MouseEvent.MOUSE_OUT, info);
 		}
 		
 		
@@ -166,6 +192,7 @@ package view
 		private function drawNewRound():void {
 			clearSprite(sprGhosts);
 			clearSprite(sprAnswers);
+			answerUser.visible = false;
 			clearSprite(sprCoordinates);
 			clearSprite(sprElements);
 		}
@@ -196,8 +223,8 @@ package view
 		
 		private function onLabelCreated(e:Event):void 
 		{
-			for (var i:int = 0; i < 3; i++) {
-				var l:ElementLabel = new ElementLabel();
+			for (var i:int = 0; i < 2; i++) {
+				var l:ElementLabel = new ElementLabel();				
 				l.name = "lbl_" + i;
 				sprElements.addChild(l);
 				var es:ElementSprite = findElementSprite(Label(round.labels[i]).element);
@@ -208,22 +235,44 @@ package view
 				setLabelText(l, Label(round.labels[i]));	
 				
 			}
+			makeTargetLabel();
 			
+		}
+		
+		private function makeTargetLabel():void {
+				var i:int = 2;
+				var l:ElementLabel2 = new ElementLabel2();				
+				l.name = "lbl_" + i;
+				sprElements.addChild(l);
+				var es:ElementSprite = findElementSprite(Label(round.labels[i]).element);
+				l.x = stage.width/2 //es.x;
+				l.y = stage.height // es.y - es.height / 2;
+				l.addEventListener(MouseEvent.MOUSE_DOWN, onLabelMouseDown);
+				l.mouseChildren = false;
+				l.textfield.text = "meu objeto";
+				l.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("O objeto cujas coordenadas você deve medir") } );
+				l.addEventListener(MouseEvent.MOUSE_OUT, info)				
+
 		}
 		
 		private function onLabelChanged(e:RoundEvent):void 
 		{
-			var l:ElementLabel = ElementLabel(sprElements.getChildByName("lbl_" + e.labelChangedType.toString()));
-			var es:ElementSprite = findElementSprite(Label(round.labels[e.labelChangedType]).element);
-			Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );
-				//moveAxis();
+			var l:Sprite;
+			if (e.labelChangedType==2) {
+				l = ElementLabel2(sprElements.getChildByName("lbl_" + e.labelChangedType.toString()));
+			} else {
+				l = ElementLabel(sprElements.getChildByName("lbl_" + e.labelChangedType.toString()));
+			}				
+				var es:ElementSprite = findElementSprite(Label(round.labels[e.labelChangedType]).element);
+				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
 			
 		}
 		
 		private function onLabelMouseDown(e:MouseEvent):void 
 		{
+			if (blockelements) return;
 			stage.addEventListener(MouseEvent.MOUSE_UP, onLabelMouseUp);
-			selectedLabel = ElementLabel(e.target);
+			selectedLabel = Sprite(e.target);
 			selectedLabel.startDrag();
 			
 		}
@@ -253,13 +302,15 @@ package view
 		private function setLabelText(el:ElementLabel, l:Label):void {
 			switch(l.type) {
 				case Label.TYPE_CENTER:
-					//el.textfield.text = "centro";					
+					el.textfield.text = "origem";					
+					el.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Origem do sistema de referência") } );
+					el.addEventListener(MouseEvent.MOUSE_OUT, info)
+					
 					break;
 				case Label.TYPE_AXIS:
-					//el.textfield.text = "eixo";
-					break;
-				case Label.TYPE_TARGET:
-					//el.textfield.text = "alvo";
+					el.textfield.text = "orientação";
+					el.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Orientação do sistema de referência") } );
+					el.addEventListener(MouseEvent.MOUSE_OUT, info)					
 					break;
 			}
 		}
@@ -287,12 +338,13 @@ package view
 				el.scaleY = 0.01;
 				var qt:Number = 0;
 				Actuate.tween(el, 0.8 + Math.random(), { scaleX:0.6, scaleY:0.6 } ).ease(Elastic.easeInOut).onComplete(onElCreationTweenCompleted, el); 
-				
+				setMessage("Meça as coordenadas do 'meu objeto' usando a régua", true);
 			}
 		}
 		
 		private function onElementStartDrag(e:MouseEvent):void 
 		{
+			if (blockelements) return;
 			var el:ElementSprite = ElementSprite(e.target);
 			dragElement = el;
 			
@@ -372,6 +424,14 @@ package view
 			ma.btTransferidor.addEventListener(MouseEvent.MOUSE_DOWN, onTransferidorClick)
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).restrict = "0-9,"
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).restrict = "0-9,"
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent) { setMessage("Digite a coordenada x de 'meu objeto'") } );
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent) { setMessage("Digite a coordenada y de 'meu objeto'") } );
+			ma.btOk.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Pressione 'terminei' para avaliar sua resposta") } );
+			ma.btOk.addEventListener(MouseEvent.MOUSE_OUT, info)
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).addEventListener(MouseEvent.MOUSE_OUT, info);
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).addEventListener(MouseEvent.MOUSE_OUT, info);
+			
+			
 			
 			
 		}
@@ -414,9 +474,13 @@ package view
 			up.y = convertSceneToRound(up.y);
 			
 			var pp:Point = up.clone();
+			pp.y = -pp.y;
+			pp = axis.localToGlobal(pp);
+			//pp = sprAnswers.globalToLocal(pp);
 			answerUser.x = pp.x;			
-			answerUser.y = -pp.y
-			answerUser.alpha = 1;
+			answerUser.y = pp.y
+			answerUser.filters = [new DropShadowFilter() ];
+			answerUser.alpha = 0;
 			ev.vars.useranswerPosition = up;
 			
 			
@@ -485,9 +549,63 @@ package view
 		
 		private function showAnswer():void 
 		{
+			var r:Sprite;
+			var junta:Sprite = new Sprite();
+			if (round.score == 0) {
+				r = new lbErrado();
+			} else {
+				r = new lbCorreto();
+			}
+			sprAnswers.addChild(r);
+			r.x = Config.WIDTH / 2
+			r.y = -100;
+
 			var btVerCorreta:BtRespostaCorreta = new BtRespostaCorreta();
-			sprAnswers.addChild(btVerCorreta)
-			btVerCorreta.width = Config.WIDTH /2 - btVerCorreta.width
+			var btSuaResposta:BtSuaResposta = new BtSuaResposta();
+			var btNovo:BtNovo = new BtNovo();
+			workAsButton(btNovo)
+			workAsButton(btVerCorreta);
+			workAsButton(btSuaResposta);
+			sprAnswers.addChild(junta);
+			junta.addChild(btVerCorreta)
+			junta.addChild(btSuaResposta)
+			junta.addChild(btNovo)
+			btVerCorreta.x = 100
+			btSuaResposta.x = 100
+			btNovo.x = 100
+			btVerCorreta.addEventListener(MouseEvent.CLICK, onVerCorreta);
+			btSuaResposta.addEventListener(MouseEvent.CLICK, onSuaResposta);
+			btNovo.addEventListener(MouseEvent.CLICK, onBtRefreshClick);
+			junta.y = 1000;			
+			btVerCorreta.y = 50
+			btVerCorreta.visible = false;
+			btSuaResposta.y = 80
+			btNovo.y = 110
+			
+			Actuate.tween(r, 0.6, { y:Config.HEIGHT / 2 } ).ease(Elastic.easeOut).onComplete(function():void {
+				Actuate.tween(r, 1, { y:Config.HEIGHT / 2 } ).ease(Linear.easeNone).onComplete(function():void {
+					Actuate.tween(r, 0.5, { y:Config.HEIGHT * 2 } ).ease(Elastic.easeIn)
+					Actuate.tween(junta, 1, { y:0 } ).ease(Quad.easeOut)
+				})
+			});			
+		}
+		
+		private function onSuaResposta(e:MouseEvent):void 
+		{
+			answerUser.visible = true;
+			answerUser.alpha = 1;
+			answerUser.scaleX = 0.01;
+			answerUser.scaleY = 0.01;
+			
+			Actuate.tween(answerUser, 0.6, { scaleX:2, scaleY:2 } ).ease(Elastic.easeOut).onComplete(function():void {
+				Actuate.tween(answerUser, 0.6, { scaleX:1, scaleY:1  } ).ease(Linear.easeNone)
+			});	
+			
+		}
+		
+		private function onVerCorreta(e:MouseEvent):void 
+		{
+			
 		}
 		
 		private function onWaitingLabels(e:Event):void 
@@ -519,7 +637,11 @@ package view
 			_round = value;
 		}
 		
-
+		public override function changeMessageObject(tx:String):void {
+			message.texto.text = tx;
+			
+			
+		}
 		
 	}
 	
