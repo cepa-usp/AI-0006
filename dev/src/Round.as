@@ -5,7 +5,7 @@ package
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
-	import pipwerks.SCORM;
+	import pipwerks.ScormComm;
 	
 	/**
 	 * ...
@@ -38,7 +38,7 @@ package
 		static public const EV_LABEL_CREATED:String = "evLabelCreated";
 		static public const EV_LABEL_CHANGED:String = "evLabelChanged";		
 		
-			
+		private var scorm:ScormComm = new ScormComm();
 		
 		public function Round() 
 		{
@@ -103,14 +103,24 @@ package
 		}
 		
 		public function evaluate(dist:Number):void {
+			
+			scorm.connectScorm()
 			state = STATE_EVALUATING;
 			if (dist < TOLERANCE) {
 				score = 100;
+				
 			} else {
 				score 0;
 			}
-			state = STATE_FINISHED;
 			
+			if(scorm.scormConnected){
+				scorm.setLessonStatus(ScormComm.LESSONSTATUS_COMPLETED);
+				var old:Number = scorm.getScore();
+				var val:Number = Math.max(old, score);
+				scorm.setScore(val);
+				scorm.disconnectScorm()
+			}
+			state = STATE_FINISHED;
 		}
 		
 		public function randomizeLabels():void 

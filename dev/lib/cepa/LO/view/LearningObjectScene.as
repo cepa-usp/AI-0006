@@ -1,5 +1,7 @@
 package cepa.LO.view
 {
+	import com.eclecticdesignstudio.motion.Actuate;
+	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
@@ -12,6 +14,9 @@ package cepa.LO.view
 	{
 		
 		private var screenMessage:String = " ";
+		protected var sprAboutScreen:AboutScreen = new AboutScreen();
+		protected var sprInfoScreen:InstScreen = new InstScreen();
+		
 		public function LearningObjectScene() 
 		{
 			
@@ -38,6 +43,25 @@ package cepa.LO.view
 		{
 			MovieClip(e.target).gotoAndStop(5);
 		}
+
+		protected function openPanel(d:MovieClip):void {
+			d.visible = true;
+			d.alpha = 0;
+			d.gotoAndStop(1);						
+			Actuate.tween(d, 0.5, { alpha:1 } );
+		}
+		
+		protected function closePanel(e:MouseEvent):void 
+		{
+			e.target.gotoAndPlay(2);
+			Actuate.tween(e.target, 0.5, { alpha:0.8 } ).onComplete(setPanelInvisbile, e.target);
+		}
+		
+		protected function setPanelInvisbile(d:DisplayObject):void 
+		{
+			d.visible = false;
+		}
+				
 		
 		protected function info(e:MouseEvent):void 
 		{
