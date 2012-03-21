@@ -20,7 +20,7 @@ package
 		private var _state:int = -1;
 		private var _score:Number = 0;
 		private var _labels:Array = [new Label(0), new Label(1), new Label(2)];
-		public const MARGIN:int = 40;
+		public const MARGIN:int = 120;
 		public const TOLERANCE:int = 23;
 		private var AMNT_ELEMENTS:int = 8;
 		
