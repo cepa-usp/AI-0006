@@ -18,6 +18,9 @@ package view
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.text.TextField;
+	import tutorial.CaixaTexto;
+	import tutorial.Tutorial;
+	import tutorial.TutorialEvent;
 	
 	/**
 	 * ...
@@ -30,7 +33,7 @@ package view
 		private var sprCoordinates:Sprite = new Sprite();
 		private var sprGhosts:Sprite = new Sprite();
 		private var sprControls:Sprite = new Sprite();
-		private var sprControls2:Sprite = new Sprite();
+		private var sprControls2:Sprite;
 		private var sprAnswers:Sprite = new Sprite();
 		private var sprRulers:Sprite = new Sprite();
 		private var regua:Tool_Regua = new Tool_Regua();
@@ -47,6 +50,7 @@ package view
 		private var lbMove:Sprite = null;
 		private var answerUser:Sprite = new Sprite;
 		private var answerRound:Sprite = new Sprite;
+		private var isTutorial:Boolean = false;
 		private var blockelements:Boolean = false;
 		private var message:TextoExplicativo = new TextoExplicativo();
 		
@@ -64,10 +68,28 @@ package view
 
 		addMessage();
 		addChild(sprControls);		
-		addChild(sprControls2);		
 		
 		
 		addTools()
+		addChild(new Borda());
+		
+		}
+		
+		private function makeScreens():void 
+		{
+		addChild(sprAboutScreen);		
+		addChild(sprInfoScreen);
+		
+		sprInfoScreen.x = Config.WIDTH / 2
+		sprInfoScreen.y = Config.HEIGHT / 2
+		sprAboutScreen.x = Config.WIDTH / 2
+		sprAboutScreen.y = Config.HEIGHT / 2
+		
+		sprAboutScreen.addEventListener(MouseEvent.CLICK, closePanel);
+		sprInfoScreen.addEventListener(MouseEvent.CLICK, closePanel);
+		sprAboutScreen.visible = false;	
+		sprInfoScreen.visible = false;
+
 		}
 		
 		private function addMessage():void 
@@ -89,15 +111,19 @@ package view
 		{
 			sprRulers.addChild(regua);
 			regua.x = Config.WIDTH / 2
-			regua.y = Config.HEIGHT * 2;
-			
+			regua.y = Config.HEIGHT * 2;			
 			regua.ruler.base.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para mover a régua") } );
 			regua.ruler.base.addEventListener(MouseEvent.MOUSE_OUT, info)			
 			regua.ruler.mov.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar a régua") } );
 			regua.ruler.mov.addEventListener(MouseEvent.MOUSE_OUT, info)						
+			transferidor.ruler.transferidorA.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para mover o transferidor") } );			
+			transferidor.ruler.transferidorB.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar o transferidor") } );			
+			transferidor.ruler.transferidorC.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para aumentar ou diminuir o transferidor") } );			
+			
 			sprRulers.addChild(transferidor);
-			transferidor.width = 40;  //Config.WIDTH / 2
-			transferidor.height = 40;  //Config.HEIGHT * 2;
+			transferidor.x = Config.WIDTH / 2
+			transferidor.y = Config.HEIGHT * 2;			
+
 		}
 		
 		
@@ -264,7 +290,7 @@ package view
 				l = ElementLabel(sprElements.getChildByName("lbl_" + e.labelChangedType.toString()));
 			}				
 				var es:ElementSprite = findElementSprite(Label(round.labels[e.labelChangedType]).element);
-				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
+				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 + 10 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
 			
 		}
 		
@@ -395,6 +421,12 @@ package view
 		
 		public function drawControls():void 
 		{
+			if (getChildByName("sprControls2") != null) {
+				removeChild(getChildByName("sprControls2"));
+			}
+			sprControls2 = new Sprite()
+			sprControls2.name = "sprControls2";
+			addChild(sprControls2);
 			sprControls2.alpha = 0;
 			var mp:MenuPrincipal = new MenuPrincipal()
 			mp.name = "menuPrincipal";
@@ -404,8 +436,10 @@ package view
 			workAsButton(mp.btAbout, "Créditos");
 			workAsButton(mp.btInstructions, "Instruções");
 			workAsButton(mp.btRefresh, "Reiniciar atividade");
-			mp.btAbout.addEventListener(MouseEvent.CLICK, onBtAboutClick);
-			mp.btInstructions.addEventListener(MouseEvent.CLICK, onBtInstructionsClick);
+			mp.btAbout.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { openPanel(sprAboutScreen) } );
+			mp.btInstructions.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { openPanel(sprInfoScreen) } );
+			mp.btTutorial.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { startTutorial() } );
+			workAsButton(mp.btTutorial, "Tutorial")
 			mp.btRefresh.addEventListener(MouseEvent.CLICK, onBtRefreshClick);
 			mp.filters = [new DropShadowFilter()]
 			
@@ -422,8 +456,8 @@ package view
 			workAsButton(ma.btTransferidor, "Adicione um transferidor no palco");
 			ma.btRegua.addEventListener(MouseEvent.MOUSE_DOWN, onReguaClick)
 			ma.btTransferidor.addEventListener(MouseEvent.MOUSE_DOWN, onTransferidorClick)
-			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).restrict = "0-9,"
-			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).restrict = "0-9,"
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).restrict = "0-9,\\-"
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).restrict = "0-9,\\-"
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent) { setMessage("Digite a coordenada x de 'meu objeto'") } );
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent) { setMessage("Digite a coordenada y de 'meu objeto'") } );
 			ma.btOk.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Pressione 'terminei' para avaliar sua resposta") } );
@@ -431,8 +465,9 @@ package view
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).addEventListener(MouseEvent.MOUSE_OUT, info);
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).addEventListener(MouseEvent.MOUSE_OUT, info);
 			
-			
-			
+			makeScreens()
+			//sprAboutScreen.visible = false;
+			//s/prInfoScreen.visible = false;
 			
 		}
 		
@@ -504,6 +539,8 @@ package view
 		
 		private function onTransferidorClick(e:MouseEvent = null):void 
 		{
+			trace(transferidor, transferidor.x, transferidor.y)
+			sprRulers.setChildIndex(transferidor, sprRulers.numChildren - 1);
 			if (!transferOnStage) {
 				Actuate.tween(transferidor, 0.8, { x:(Config.WIDTH / 4)*3, y:Config.HEIGHT / 2 } ).ease(Cubic.easeOut);
 				transferOnStage = true;
@@ -642,6 +679,50 @@ package view
 			
 			
 		}
+
+		private function startTutorial():void {
+			if (isTutorial) return;
+			isTutorial = true;
+			var tut:Tutorial = new Tutorial();
+			tut.addEventListener(TutorialEvent.BALAO_ABRIU, onBalaoAbriu)
+			tut.addEventListener(TutorialEvent.FIM_TUTORIAL, onFinishTutorial)
+			
+			var p1:Point = new Point(Sprite(sprElements.getChildByName("lbl_2")).x, Sprite(sprElements.getChildByName("lbl_2")).y - 30);
+			var p2:Point = new Point(Sprite(sprElements.getChildByName("lbl_0")).x, Sprite(sprElements.getChildByName("lbl_0")).y - 30);
+			var p3:Point = new Point(Sprite(sprElements.getChildByName("lbl_1")).x, Sprite(sprElements.getChildByName("lbl_1")).y - 30);			
+			tut.adicionarBalao("Escolha um objeto qualquer arrastando para cima dele a bandeira 'meu objeto'. obs.: o usuário também pode selecionar um objeto apenas clicando nele. Neste caso, a bandeira 'meu objeto' é automaticamente posicionada junto dele.", 
+				p1,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);
+			tut.adicionarBalao("Seu objetivo é determinar as coordenadas desse objeto.", 
+				new Point(100, 40), CaixaTexto.LEFT, CaixaTexto.FIRST);
+			tut.adicionarBalao("Para isso, você deve antes definir o 'sistema de referência'.", 
+				new Point(300, 300), 0, 0);
+			tut.adicionarBalao("Primeiramente, escolha um objeto para ser a origem do sistema de referência, arrastando para cima dele a bandeira 'origem do sistema de referência'.", 
+				p2,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);
+			tut.adicionarBalao("Finalmente, escolha um 'outro' objeto para definir a orientação do eixo x, arrastando para cima dele a bandeira 'orientação do sistema de referência'.", 
+				p3,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);				
+			tut.adicionarBalao("Estes dois objetos definem o eixo x, que passa por eles, e o eixo y, perpendicular ao eixo x.", 
+				new Point(300, 300), 0, 0);
+			tut.adicionarBalao("Utilize a régua para medir as coordenadas.", 
+				new Point(40, 150), CaixaTexto.LEFT, CaixaTexto.FIRST);
+			tut.adicionarBalao("Preencha as coordenadas e pressione 'terminei' para conferir sua resposta.", 
+				new Point(100, 100), CaixaTexto.LEFT, CaixaTexto.FIRST);				
+				
+			tut.iniciar(stage);
+			
+			
+			
+		}		
+		
+		private function onFinishTutorial(e:TutorialEvent):void 
+		{
+			isTutorial = false;
+		}
+		
+		private function onBalaoAbriu(e:TutorialEvent):void 
+		{
+			
+		}
+		
 		
 	}
 	

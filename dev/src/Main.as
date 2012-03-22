@@ -17,6 +17,7 @@ package
 		
 		private var scene:Scene = new Scene();
 		private var round:Round;
+		
 		public function Main():void 
 		{
 			if (stage) init();
@@ -27,7 +28,9 @@ package
 		{
 			//scrollRect = new Rectangle(round.WIDTH, round.HEIGHT);
 			removeEventListener(Event.ADDED_TO_STAGE, init);
+			this.scrollRect = new Rectangle(0, 0, 700, 600);
 			addChild(scene);
+			
 			startRound();
 			
 		}
@@ -51,6 +54,7 @@ package
 		{
 			//round.evaluate();
 			var userAnswer:Point = e.vars.useranswerPosition;
+			trace("resposta do usuario", e.vars.useranswerPosition)
 			var correctAnswer:Point = e.vars.correctAnswerPosition;
 			
 			round.evaluate(Point.distance(userAnswer, correctAnswer));			

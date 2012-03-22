@@ -31,7 +31,7 @@ package pipwerks
 		 * This is the current student status as determined by the LMS. Six status values are allowed.
 		 * @param	status - a String as indicated in LESSONSTATUS_* constants;
 		 */
-		public function setLessonStatus(status:String) {
+		public function setLessonStatus(status:String):void {
 			scorm.set("cmi.core.lesson_status", status)
 		}
 		
