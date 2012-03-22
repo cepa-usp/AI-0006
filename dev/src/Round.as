@@ -105,19 +105,36 @@ package
 		public function evaluate(dist:Number):void {
 			
 			scorm.connectScorm()
+			
 			state = STATE_EVALUATING;
 			if (dist < TOLERANCE) {
 				score = 100;
 				
 			} else {
-				score 0;
+				score = 0;
 			}
 			
-			if(scorm.scormConnected){
+			if (scorm.scormConnected) {
+				var memento:Object = scorm.loadState();
+				var numTentativas:Number = 0;
+				if (memento != null) {
+					if (memento.numTentativas != null) {
+						numTentativas = memento.numTentativas;	
+					} else {
+						numTentativas = 0;	
+					}					
+				} else {
+					numTentativas = 0;
+				}
+				var mediaAnterior:Number = scorm.getScore();				
+				
 				scorm.setLessonStatus(ScormComm.LESSONSTATUS_COMPLETED);
-				var old:Number = scorm.getScore();
-				var val:Number = Math.max(old, score);
+				var val:Number = (mediaAnterior * numTentativas + score)/numTentativas+1;
+				memento.numTentativas = numTentativas + 1;
 				scorm.setScore(val);
+				scorm.saveState(memento);
+				scorm.save();
+				
 				scorm.disconnectScorm()
 			}
 			state = STATE_FINISHED;
