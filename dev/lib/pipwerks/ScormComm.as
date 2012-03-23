@@ -87,12 +87,7 @@ package pipwerks
 		 * @param	score A number representing the student's score
 		 */
 		public function setScore(score:Number):void {
-			scorm.set("cmi.core.score.raw", score.toString())	
-			
-		}
-		
-		public function save():Boolean {
-			return scorm.save();
+			scorm.set("cmi.core.score.raw", score.toString())			
 		}
 		
 		/**
@@ -140,7 +135,7 @@ package pipwerks
 		/**
 		 * Disconnects from LMS;
 		 */
-		public function disconnectScorm():void {
+		public function disconnectScorm() {
 			if (scormConnected) scorm.disconnect();
 		}
 		

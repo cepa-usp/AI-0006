@@ -26,7 +26,7 @@ package tutorial
 		}
 		
 		public function adicionarBalao(texto:String, pos:Point, ladoSeta:int, posicaoSeta:int):CaixaTexto {
-			var balao:CaixaTexto = new CaixaTexto(true);			
+			var balao:CaixaTexto = new CaixaTexto();			
 			balao.setText(texto, ladoSeta, posicaoSeta);
 			balao.setPosition(pos.x, pos.y);
 			//balao.addEventListener(Event.CLOSE, closeBalao);			

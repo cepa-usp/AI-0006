@@ -15,7 +15,7 @@
 		private var startAngle:Number;
 		private var rotating:Boolean;
 		private var bigTickMm:Array = new Array();
-		private var MiliToPix:Number = 0.4285// * 2;
+		private var MiliToPix = 0.4285// * 2;
 		private var startOrientation:Number;
 		private var arrayAtractors:Array = new Array();
 		private var clickOfSet:Point = new Point();

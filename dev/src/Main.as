@@ -17,7 +17,6 @@ package
 		
 		private var scene:Scene = new Scene();
 		private var round:Round;
-		
 		public function Main():void 
 		{
 			if (stage) init();

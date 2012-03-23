@@ -8,20 +8,20 @@
 	import flash.filters.GlowFilter;
 	import flash.geom.*;
 	
-	public class Tool_Transferidor extends Sprite {
+	public class Tool_Transferidor extends MovieClip {
 		
-		public var ruler:Transferidor = new Transferidor();
+		private var ruler:Transferidor = new Transferidor();
 		private var startAngle:Number;
 		private var startOrientation:Number;
 		private var rotating:Boolean;
-		private var MiliToPix:Number = 1.8;
+		private var MiliToPix = 1.8;
 		private var arrayAtractors:Array = new Array();
 		private var clickOfSet:Point = new Point();
 		private var i:Number;
 		private var visivel:Boolean = false;
 		private var radius:Number;
-		private var matrixCorrente:Matrix;
-		private var matrix2:Matrix;
+		var matrixCorrente:Matrix;
+		var matrix2:Matrix;
 		
 		private var filter:GlowFilter = new GlowFilter(0xFF0000, 1, 12, 12, 5);
 		private var inicialMatrix:Matrix;
@@ -33,7 +33,6 @@
 		
 		private function init(e:Event = null):void 
 		{
-
 			rotating = false;
 			addChild(ruler);
 			buttonMode = true;
@@ -53,10 +52,8 @@
 			ruler.transferidorB.inner.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			ruler.transferidorA.inner.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			
-			//this.x = 200;
-			//this.y = 200;
-			
-			
+			this.x = 200;
+			this.y = 200;
 			
 			inicialMatrix = this.transform.matrix.clone();
 		}

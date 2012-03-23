@@ -50,7 +50,6 @@ package view
 		private var lbMove:Sprite = null;
 		private var answerUser:Sprite = new Sprite;
 		private var answerRound:Sprite = new Sprite;
-		private var isTutorial:Boolean = false;
 		private var blockelements:Boolean = false;
 		private var message:TextoExplicativo = new TextoExplicativo();
 		
@@ -71,7 +70,6 @@ package view
 		
 		
 		addTools()
-		addChild(new Borda());
 		
 		}
 		
@@ -111,19 +109,15 @@ package view
 		{
 			sprRulers.addChild(regua);
 			regua.x = Config.WIDTH / 2
-			regua.y = Config.HEIGHT * 2;			
+			regua.y = Config.HEIGHT * 2;
+			
 			regua.ruler.base.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para mover a régua") } );
 			regua.ruler.base.addEventListener(MouseEvent.MOUSE_OUT, info)			
 			regua.ruler.mov.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar a régua") } );
 			regua.ruler.mov.addEventListener(MouseEvent.MOUSE_OUT, info)						
-			transferidor.ruler.transferidorA.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para mover o transferidor") } );			
-			transferidor.ruler.transferidorB.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar o transferidor") } );			
-			transferidor.ruler.transferidorC.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para aumentar ou diminuir o transferidor") } );			
-			
 			sprRulers.addChild(transferidor);
-			transferidor.x = Config.WIDTH / 2
-			transferidor.y = Config.HEIGHT * 2;			
-
+			transferidor.width = 40;  //Config.WIDTH / 2
+			transferidor.height = 40;  //Config.HEIGHT * 2;
 		}
 		
 		
@@ -290,7 +284,7 @@ package view
 				l = ElementLabel(sprElements.getChildByName("lbl_" + e.labelChangedType.toString()));
 			}				
 				var es:ElementSprite = findElementSprite(Label(round.labels[e.labelChangedType]).element);
-				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 + 10 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
+				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
 			
 		}
 		
@@ -539,8 +533,6 @@ package view
 		
 		private function onTransferidorClick(e:MouseEvent = null):void 
 		{
-			trace(transferidor, transferidor.x, transferidor.y)
-			sprRulers.setChildIndex(transferidor, sprRulers.numChildren - 1);
 			if (!transferOnStage) {
 				Actuate.tween(transferidor, 0.8, { x:(Config.WIDTH / 4)*3, y:Config.HEIGHT / 2 } ).ease(Cubic.easeOut);
 				transferOnStage = true;
@@ -681,8 +673,6 @@ package view
 		}
 
 		private function startTutorial():void {
-			if (isTutorial) return;
-			isTutorial = true;
 			var tut:Tutorial = new Tutorial();
 			tut.addEventListener(TutorialEvent.BALAO_ABRIU, onBalaoAbriu)
 			tut.addEventListener(TutorialEvent.FIM_TUTORIAL, onFinishTutorial)
@@ -695,13 +685,13 @@ package view
 			tut.adicionarBalao("Seu objetivo é determinar as coordenadas desse objeto.", 
 				new Point(100, 40), CaixaTexto.LEFT, CaixaTexto.FIRST);
 			tut.adicionarBalao("Para isso, você deve antes definir o 'sistema de referência'.", 
-				new Point(300, 300), 0, 0);
+				new Point(300, 300), CaixaTexto.CENTER, 0);
 			tut.adicionarBalao("Primeiramente, escolha um objeto para ser a origem do sistema de referência, arrastando para cima dele a bandeira 'origem do sistema de referência'.", 
 				p2,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);
 			tut.adicionarBalao("Finalmente, escolha um 'outro' objeto para definir a orientação do eixo x, arrastando para cima dele a bandeira 'orientação do sistema de referência'.", 
 				p3,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);				
 			tut.adicionarBalao("Estes dois objetos definem o eixo x, que passa por eles, e o eixo y, perpendicular ao eixo x.", 
-				new Point(300, 300), 0, 0);
+				new Point(300, 300), CaixaTexto.CENTER, 0);
 			tut.adicionarBalao("Utilize a régua para medir as coordenadas.", 
 				new Point(40, 150), CaixaTexto.LEFT, CaixaTexto.FIRST);
 			tut.adicionarBalao("Preencha as coordenadas e pressione 'terminei' para conferir sua resposta.", 
@@ -715,7 +705,7 @@ package view
 		
 		private function onFinishTutorial(e:TutorialEvent):void 
 		{
-			isTutorial = false;
+			
 		}
 		
 		private function onBalaoAbriu(e:TutorialEvent):void 

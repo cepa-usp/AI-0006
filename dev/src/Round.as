@@ -20,7 +20,7 @@ package
 		private var _state:int = -1;
 		private var _score:Number = 0;
 		private var _labels:Array = [new Label(0), new Label(1), new Label(2)];
-		public const MARGIN:int = 120;
+		public const MARGIN:int = 40;
 		public const TOLERANCE:int = 23;
 		private var AMNT_ELEMENTS:int = 8;
 		
@@ -105,36 +105,19 @@ package
 		public function evaluate(dist:Number):void {
 			
 			scorm.connectScorm()
-			
 			state = STATE_EVALUATING;
 			if (dist < TOLERANCE) {
 				score = 100;
 				
 			} else {
-				score = 0;
+				score 0;
 			}
 			
-			if (scorm.scormConnected) {
-				var memento:Object = scorm.loadState();
-				var numTentativas:Number = 0;
-				if (memento != null) {
-					if (memento.numTentativas != null) {
-						numTentativas = memento.numTentativas;	
-					} else {
-						numTentativas = 0;	
-					}					
-				} else {
-					numTentativas = 0;
-				}
-				var mediaAnterior:Number = scorm.getScore();				
-				
+			if(scorm.scormConnected){
 				scorm.setLessonStatus(ScormComm.LESSONSTATUS_COMPLETED);
-				var val:Number = (mediaAnterior * numTentativas + score)/numTentativas+1;
-				memento.numTentativas = numTentativas + 1;
+				var old:Number = scorm.getScore();
+				var val:Number = Math.max(old, score);
 				scorm.setScore(val);
-				scorm.saveState(memento);
-				scorm.save();
-				
 				scorm.disconnectScorm()
 			}
 			state = STATE_FINISHED;
