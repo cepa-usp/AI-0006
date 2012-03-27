@@ -680,7 +680,7 @@ package view
 			var p1:Point = new Point(Sprite(sprElements.getChildByName("lbl_2")).x, Sprite(sprElements.getChildByName("lbl_2")).y - 30);
 			var p2:Point = new Point(Sprite(sprElements.getChildByName("lbl_0")).x, Sprite(sprElements.getChildByName("lbl_0")).y - 30);
 			var p3:Point = new Point(Sprite(sprElements.getChildByName("lbl_1")).x, Sprite(sprElements.getChildByName("lbl_1")).y - 30);			
-			tut.adicionarBalao("Escolha um objeto qualquer arrastando para cima dele a bandeira 'meu objeto'. obs.: o usuário também pode selecionar um objeto apenas clicando nele. Neste caso, a bandeira 'meu objeto' é automaticamente posicionada junto dele.", 
+			tut.adicionarBalao("Escolha um objeto qualquer arrastando para cima dele a bandeira 'meu objeto'.", 
 				p1,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);
 			tut.adicionarBalao("Seu objetivo é determinar as coordenadas desse objeto.", 
 				new Point(100, 40), CaixaTexto.LEFT, CaixaTexto.FIRST);
