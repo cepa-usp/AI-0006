@@ -431,9 +431,9 @@ package view
 			workAsButton(mp.btInstructions, "Instruções");
 			workAsButton(mp.btRefresh, "Reiniciar atividade");
 			mp.btAbout.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { openPanel(sprAboutScreen) } );
-			mp.btInstructions.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { openPanel(sprInfoScreen) } );
-			mp.btTutorial.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { startTutorial() } );
-			workAsButton(mp.btTutorial, "Tutorial")
+			//mp.btInstructions.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { openPanel(sprInfoScreen) } );
+			mp.btInstructions.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { startTutorial() } );
+			//workAsButton(mp.btTutorial, "Tutorial")
 			mp.btRefresh.addEventListener(MouseEvent.CLICK, onBtRefreshClick);
 			mp.filters = [new DropShadowFilter()]
 			
