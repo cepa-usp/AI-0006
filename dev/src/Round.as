@@ -38,7 +38,7 @@ package
 		static public const EV_LABEL_CREATED:String = "evLabelCreated";
 		static public const EV_LABEL_CHANGED:String = "evLabelChanged";		
 		
-		private var scorm:ScormComm = new ScormComm();
+		
 		
 		public function Round() 
 		{
@@ -102,10 +102,7 @@ package
 			}
 		}
 		
-		public function evaluate(dist:Number):void {
-			
-			scorm.connectScorm()
-			
+		public function evaluate(dist:Number):Number {
 			state = STATE_EVALUATING;
 			if (dist < TOLERANCE) {
 				score = 100;
@@ -113,31 +110,10 @@ package
 			} else {
 				score = 0;
 			}
-			
-			if (scorm.scormConnected) {
-				var memento:Object = scorm.loadState();
-				var numTentativas:Number = 0;
-				if (memento != null) {
-					if (memento.numTentativas != null) {
-						numTentativas = memento.numTentativas;	
-					} else {
-						numTentativas = 0;	
-					}					
-				} else {
-					numTentativas = 0;
-				}
-				var mediaAnterior:Number = scorm.getScore();				
-				
-				scorm.setLessonStatus(ScormComm.LESSONSTATUS_COMPLETED);
-				var val:Number = (mediaAnterior * numTentativas + score)/numTentativas+1;
-				memento.numTentativas = numTentativas + 1;
-				scorm.setScore(val);
-				scorm.saveState(memento);
-				scorm.save();
-				
-				scorm.disconnectScorm()
-			}
 			state = STATE_FINISHED;
+			return score;
+			
+			
 		}
 		
 		public function randomizeLabels():void 

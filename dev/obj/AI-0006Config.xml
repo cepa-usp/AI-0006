@@ -14,21 +14,23 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'25/4/2012'</value>
+      <value>'22/3/2012'</value>
     </define>
     <source-path append="true">
-      <path-element>C:\Documents and Settings\Arthur\Meus documentos\CEPA\GitHub\AI-0006\dev\src</path-element>
-      <path-element>C:\Documents and Settings\Arthur\Meus documentos\CEPA\GitHub\AI-0006\dev\lib</path-element>
+      <path-element>C:\Documents and Settings\Arthur Tofani\Desktop\GitHub\AI-0006\dev\src</path-element>
+      <path-element>C:\Documents and Settings\Arthur Tofani\Desktop\GitHub\AI-0006\dev\lib</path-element>
+      <path-element>C:\Documents and Settings\Arthur Tofani\Desktop\CEPALib\AS3\src</path-element>
+      <path-element>C:\Arquivos de programas\Adobe\Adobe Flash CS5\Common\Configuration\ActionScript 3.0\projects\Flash\src</path-element>
       <path-element>C:\Arquivos de programas\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
     <library-path append="true">
-      <path-element>C:\Documents and Settings\Arthur\Meus documentos\CEPA\GitHub\AI-0006\dev\lib\as3corelib.swc</path-element>
-      <path-element>C:\Documents and Settings\Arthur\Meus documentos\CEPA\GitHub\AI-0006\dev\lib\arte.swc</path-element>
-      <path-element>C:\Documents and Settings\Arthur\Meus documentos\CEPA\GitHub\AI-0006\dev\lib\cepa\LO\tools\tools.swc</path-element>
+      <path-element>C:\Documents and Settings\Arthur Tofani\Desktop\GitHub\AI-0006\dev\lib\as3corelib.swc</path-element>
+      <path-element>C:\Documents and Settings\Arthur Tofani\Desktop\GitHub\AI-0006\dev\lib\arte.swc</path-element>
+      <path-element>C:\Documents and Settings\Arthur Tofani\Desktop\GitHub\AI-0006\dev\lib\cepa\LO\tools\tools.swc</path-element>
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>C:\Documents and Settings\Arthur\Meus documentos\CEPA\GitHub\AI-0006\dev\src\Main.as</path-element>
+    <path-element>C:\Documents and Settings\Arthur Tofani\Desktop\GitHub\AI-0006\dev\src\Main.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>

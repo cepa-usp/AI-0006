@@ -2,6 +2,8 @@ package pipwerks
 {
 	import com.adobe.serialization.json.JSONDecoder;
 	import com.adobe.serialization.json.JSONEncoder;
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.external.ExternalInterface;
 	
 	/**
@@ -12,6 +14,7 @@ package pipwerks
 	{
 		private var _scormConnected:Boolean;
 		private var scorm:SCORM;
+		private var _eventDispatcher:EventDispatcher = new EventDispatcher();
 		
 		
 		public static const LESSONSTATUS_PASSED:String = "passed";		
@@ -20,19 +23,36 @@ package pipwerks
 		public static const LESSONSTATUS_INCOMPLETE:String = "incomplete";
 		public static const LESSONSTATUS_BROWSED:String = "browsed";
 		public static const LESSONSTATUS_NOTATTEMPTED:String = "not attempted";		
+		public var log:String = "";
 		
+		public function sendMessage(tx:String):void {
+			log += tx + "\n\n";
+			_eventDispatcher.dispatchEvent(new Event(Event.CHANGE));
+		}
 		
 		public function ScormComm() 
 		{			
-			if (ExternalInterface.available) scorm = new SCORM();
+			
+			
+			sendMessage("Criando SCORM")
+			sendMessage("ExternalInterface.available = " + String(ExternalInterface.available))			
+			if (ExternalInterface.available) {
+				scorm = new SCORM();
+				scorm.debugMode = true;
+				sendMessage("Criou obj SCORM")
+			} else {
+				sendMessage("Não criou obj SCORM")
 			}
 			
+		}	
 		/**
 		 * This is the current student status as determined by the LMS. Six status values are allowed.
 		 * @param	status - a String as indicated in LESSONSTATUS_* constants;
 		 */
 		public function setLessonStatus(status:String):void {
-			scorm.set("cmi.core.lesson_status", status)
+			var ret:Boolean = scorm.set("cmi.core.lesson_status", status)			
+			sendMessage("Alterar cmi.core.lesson_status para: " + status + " " + String(ret))
+			
 		}
 		
 		/**
@@ -40,7 +60,7 @@ package pipwerks
 		 * @return Six status values are allowed. See LESSONSTATUS_* constants;
 		 */
 		public function getLessonStatus():String {
-			return scorm.get("cmi.core.lesson_status")
+			return scorm.get("cmi.core.lesson_status")			
 		}		
 
 
@@ -87,12 +107,15 @@ package pipwerks
 		 * @param	score A number representing the student's score
 		 */
 		public function setScore(score:Number):void {
-			scorm.set("cmi.core.score.raw", score.toString())	
+			var ret:Boolean = scorm.set("cmi.core.score.raw", score.toString())	
+			sendMessage("Alterar score [cmi.core.score.raw] para: " + score + ": " + String(ret))
 			
 		}
 		
-		public function save():Boolean {
-			return scorm.save();
+		public function save():Boolean {			
+			var ret:Boolean = scorm.save();
+			sendMessage("Salvando scorm: " + String(ret))
+			return ret;
 		}
 		
 		/**
@@ -110,8 +133,9 @@ package pipwerks
 		public function saveState(obj:Object):void {
 			var json:JSONEncoder = new JSONEncoder(obj);
 			var str:String = json.getString();
+			var ret:Boolean = scorm.set("cmi.suspend_data", str);
 			
-			
+			sendMessage("Salvando state: " + String(ret))
 			
 		}
 		
@@ -131,8 +155,16 @@ package pipwerks
 		 * Connects to LMS
 		 */
 		public function connectScorm():void {
-			if (!ExternalInterface.available) return;
+			if (!ExternalInterface.available) {
+				sendMessage("Tentando conectar, mas ExternalInterface não existe")
+				return;
+				
+			}
 			_scormConnected = scorm.connect();
+			sendMessage("Tentando conectar; conectado=" + String(_scormConnected))
+			if (_scormConnected) {
+				sendMessage("Usuário: " + scorm.get("cmi.core.student_name"))	;
+			}
 		}
 		
 
@@ -142,6 +174,7 @@ package pipwerks
 		 */
 		public function disconnectScorm():void {
 			if (scormConnected) scorm.disconnect();
+			sendMessage("Desconectando")
 		}
 		
 		
@@ -151,6 +184,16 @@ package pipwerks
 		public function get scormConnected():Boolean 
 		{
 			return _scormConnected;
+		}
+		
+		public function get eventDispatcher():EventDispatcher 
+		{
+			return _eventDispatcher;
+		}
+		
+		public function set eventDispatcher(value:EventDispatcher):void 
+		{
+			_eventDispatcher = value;
 		}
 		
 

@@ -50,6 +50,7 @@ package view
 		private var lbMove:Sprite = null;
 		private var answerUser:Sprite = new Sprite;
 		private var answerRound:Sprite = new Sprite;
+		private var isTutorial:Boolean = false;
 		private var blockelements:Boolean = false;
 		private var message:TextoExplicativo = new TextoExplicativo();
 		
@@ -70,6 +71,7 @@ package view
 		
 		
 		addTools()
+		addChild(new Borda());
 		
 		}
 		
@@ -102,22 +104,35 @@ package view
 		private function makeAnswer():void {
 			answerUser.graphics.beginFill(0xFF0000);
 			answerUser.graphics.drawCircle(0, 0, 4)
+			answerUser.addEventListener(MouseEvent.MOUSE_OVER, onAnswerMouseOver);
+			answerUser.addEventListener(MouseEvent.MOUSE_OUT, info);
 			
+		}
+		
+		private function onAnswerMouseOver(e:MouseEvent):void 
+		{
+			setMessage("Essa é sua resposta");
 		}
 		
 		private function addTools():void 
 		{
 			sprRulers.addChild(regua);
 			regua.x = Config.WIDTH / 2
-			regua.y = Config.HEIGHT * 2;
+			regua.y = Config.HEIGHT * 2;	
 			
 			regua.ruler.base.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para mover a régua") } );
 			regua.ruler.base.addEventListener(MouseEvent.MOUSE_OUT, info)			
-			regua.ruler.mov.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar a régua") } );
+			regua.ruler.right.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar a régua") } );
+			regua.ruler.left.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar a régua") } );
 			regua.ruler.mov.addEventListener(MouseEvent.MOUSE_OUT, info)						
+			transferidor.ruler.transferidorA.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para mover o transferidor") } );			
+			transferidor.ruler.transferidorB.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para girar o transferidor") } );			
+			transferidor.ruler.transferidorC.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void { setMessage("Arraste para aumentar ou diminuir o transferidor") } );			
+			
 			sprRulers.addChild(transferidor);
-			transferidor.width = 40;  //Config.WIDTH / 2
-			transferidor.height = 40;  //Config.HEIGHT * 2;
+			transferidor.x = Config.WIDTH / 2
+			transferidor.y = Config.HEIGHT * 2;			
+
 		}
 		
 		
@@ -144,11 +159,18 @@ package view
 		
 		public function drawAxis():void {
 			axis.graphics.clear();
-			axis.graphics.lineStyle(2, 0x400040, 0.6);
+			
 			var w:int = Config.WIDTH;
 			var h:int = Config.HEIGHT;
+			axis.graphics.lineStyle()
+			axis.graphics.beginFill(0xFF8000, 0.01);
+			axis.graphics.drawRect(-1000, -10, 2000, 10)
+			axis.graphics.drawRect(-10, -1000, 10, 2000)			
+			axis.graphics.lineStyle(2, 0, 0.6);
+			axis.graphics.moveTo(0 - w * 2, 0);
+			
 
-			axis.graphics.moveTo(0-w*2, 0);
+			
 			axis.graphics.lineTo(axis.getChildByName("arrowX").x, 0);
 			axis.graphics.moveTo(0, h*2);
 			axis.graphics.lineTo(0, axis.getChildByName("arrowY").y);
@@ -185,7 +207,7 @@ package view
 			var ptX:Point;
 			var ptY:Point;
 			var rect:Rectangle = new Rectangle(0, 0, Config.WIDTH, Config.HEIGHT)
-			for (var i:int = 0; i < 1500;i+=30) {
+			for (var i:int = 0; i < 1500;i+=80) {
 				var j:int = 0;
 				ptX = axis.localToGlobal(new Point(i, 0));
 				ptY = axis.localToGlobal(new Point(0, -i));
@@ -284,7 +306,7 @@ package view
 				l = ElementLabel(sprElements.getChildByName("lbl_" + e.labelChangedType.toString()));
 			}				
 				var es:ElementSprite = findElementSprite(Label(round.labels[e.labelChangedType]).element);
-				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
+				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 + 10 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
 			
 		}
 		
@@ -345,21 +367,33 @@ package view
 		private function onElementsCreated(e:RoundEvent):void 
 		{
 			elements = new Vector.<ElementSprite>();
+			var vec:Array = ["", "Banana", "Kiwi", "Laranja", "Maçã", "Pera", "Uva"]
+			var nm:int;
 			for each (var ee:Element in _round.elements) {				
 				var el:ElementSprite = new ElementSprite(new SpritePack1(), ee);
 				el.mouseChildren = false;
-				el.graphicalSymbol.gotoAndStop(Math.floor(Math.random() * el.graphicalSymbol.totalFrames));				
+				el.buttonMode = true;
+				nm = Math.floor(Math.random() * el.graphicalSymbol.totalFrames);
+				el.graphicalSymbol.gotoAndStop(nm);				
 				elements.push(el);
 				sprElements.addChild(el);
 				el.x = ee.x;
 				el.y = ee.y;
+				el.elname = vec[nm]
 				el.addEventListener(MouseEvent.MOUSE_DOWN, onElementStartDrag);
+				el.addEventListener(MouseEvent.MOUSE_OVER, onElementMouseOver)
+				el.addEventListener(MouseEvent.MOUSE_OUT, info);
 				el.scaleX = 0.01;
 				el.scaleY = 0.01;
 				var qt:Number = 0;
 				Actuate.tween(el, 0.8 + Math.random(), { scaleX:0.6, scaleY:0.6 } ).ease(Elastic.easeInOut).onComplete(onElCreationTweenCompleted, el); 
 				setMessage("Meça as coordenadas do 'meu objeto' usando a régua", true);
 			}
+		}
+		
+		private function onElementMouseOver(e:MouseEvent):void 
+		{
+			setMessage(ElementSprite(e.target).elname);
 		}
 		
 		private function onElementStartDrag(e:MouseEvent):void 
@@ -428,12 +462,12 @@ package view
 			mp.x = Config.WIDTH - mp.width - 15;
 			mp.y = Config.HEIGHT - mp.height - 15;
 			workAsButton(mp.btAbout, "Créditos");
-			workAsButton(mp.btInstructions, "Instruções");
+			workAsButton(mp.btInstructions, "orientações");
 			workAsButton(mp.btRefresh, "Reiniciar atividade");
 			mp.btAbout.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { openPanel(sprAboutScreen) } );
-			//mp.btInstructions.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { openPanel(sprInfoScreen) } );
-			mp.btInstructions.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { startTutorial() } );
-			//workAsButton(mp.btTutorial, "Tutorial")
+			mp.btInstructions.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { openPanel(sprInfoScreen) } );
+			mp.btTutorial.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void { startTutorial() } );
+			workAsButton(mp.btTutorial, "Tutorial")
 			mp.btRefresh.addEventListener(MouseEvent.CLICK, onBtRefreshClick);
 			mp.filters = [new DropShadowFilter()]
 			
@@ -450,6 +484,7 @@ package view
 			workAsButton(ma.btTransferidor, "Adicione um transferidor no palco");
 			ma.btRegua.addEventListener(MouseEvent.MOUSE_DOWN, onReguaClick)
 			ma.btTransferidor.addEventListener(MouseEvent.MOUSE_DOWN, onTransferidorClick)
+			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).multiline = false;
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).restrict = "0-9,\\-"
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varY).restrict = "0-9,\\-"
 			TextField(MenuAtividade(sprControls2.getChildByName("menuAtividade")).varX).addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent) { setMessage("Digite a coordenada x de 'meu objeto'") } );
@@ -533,6 +568,8 @@ package view
 		
 		private function onTransferidorClick(e:MouseEvent = null):void 
 		{
+			trace(transferidor, transferidor.x, transferidor.y)
+			sprRulers.setChildIndex(transferidor, sprRulers.numChildren - 1);
 			if (!transferOnStage) {
 				Actuate.tween(transferidor, 0.8, { x:(Config.WIDTH / 4)*3, y:Config.HEIGHT / 2 } ).ease(Cubic.easeOut);
 				transferOnStage = true;
@@ -545,6 +582,7 @@ package view
 		
 		private function onReguaClick(e:MouseEvent = null):void 
 		{
+			
 			if (!reguaOnStage) {
 				Actuate.tween(regua, 0.5, { x:Config.WIDTH / 4, y:Config.HEIGHT / 2 } ).ease(Cubic.easeOut);
 				reguaOnStage = true;
@@ -578,8 +616,9 @@ package view
 		
 		private function showAnswer():void 
 		{
+			setMessage("Pressione 'novo exercício' para recomeçar", true)
 			var r:Sprite;
-			var junta:Sprite = new Sprite();
+			var junta:PanelResposta = new PanelResposta();
 			if (round.score == 0) {
 				r = new lbErrado();
 			} else {
@@ -591,30 +630,28 @@ package view
 
 			var btVerCorreta:BtRespostaCorreta = new BtRespostaCorreta();
 			var btSuaResposta:BtSuaResposta = new BtSuaResposta();
+			junta.x = 30;
 			var btNovo:BtNovo = new BtNovo();
 			workAsButton(btNovo)
 			workAsButton(btVerCorreta);
 			workAsButton(btSuaResposta);
 			sprAnswers.addChild(junta);
-			junta.addChild(btVerCorreta)
 			junta.addChild(btSuaResposta)
 			junta.addChild(btNovo)
-			btVerCorreta.x = 100
-			btSuaResposta.x = 100
-			btNovo.x = 100
+			btSuaResposta.x = 85
+			btNovo.x = 85
 			btVerCorreta.addEventListener(MouseEvent.CLICK, onVerCorreta);
 			btSuaResposta.addEventListener(MouseEvent.CLICK, onSuaResposta);
 			btNovo.addEventListener(MouseEvent.CLICK, onBtRefreshClick);
 			junta.y = 1000;			
-			btVerCorreta.y = 50
-			btVerCorreta.visible = false;
-			btSuaResposta.y = 80
-			btNovo.y = 110
+			junta.filters = [new DropShadowFilter()];
+			btSuaResposta.y = 20
+			btNovo.y = 60
 			
 			Actuate.tween(r, 0.6, { y:Config.HEIGHT / 2 } ).ease(Elastic.easeOut).onComplete(function():void {
 				Actuate.tween(r, 1, { y:Config.HEIGHT / 2 } ).ease(Linear.easeNone).onComplete(function():void {
 					Actuate.tween(r, 0.5, { y:Config.HEIGHT * 2 } ).ease(Elastic.easeIn)
-					Actuate.tween(junta, 1, { y:0 } ).ease(Quad.easeOut)
+					Actuate.tween(junta, 1, { y:40 } ).ease(Quad.easeOut)
 				})
 			});			
 		}
@@ -673,6 +710,8 @@ package view
 		}
 
 		private function startTutorial():void {
+			if (isTutorial) return;
+			isTutorial = true;
 			var tut:Tutorial = new Tutorial();
 			tut.addEventListener(TutorialEvent.BALAO_ABRIU, onBalaoAbriu)
 			tut.addEventListener(TutorialEvent.FIM_TUTORIAL, onFinishTutorial)
@@ -680,18 +719,18 @@ package view
 			var p1:Point = new Point(Sprite(sprElements.getChildByName("lbl_2")).x, Sprite(sprElements.getChildByName("lbl_2")).y - 30);
 			var p2:Point = new Point(Sprite(sprElements.getChildByName("lbl_0")).x, Sprite(sprElements.getChildByName("lbl_0")).y - 30);
 			var p3:Point = new Point(Sprite(sprElements.getChildByName("lbl_1")).x, Sprite(sprElements.getChildByName("lbl_1")).y - 30);			
-			tut.adicionarBalao("Escolha um objeto qualquer arrastando para cima dele a bandeira 'meu objeto'.", 
+			tut.adicionarBalao("Escolha um objeto qualquer arrastando para cima dele a bandeira 'meu objeto'. obs.: o usuário também pode selecionar um objeto apenas clicando nele. Neste caso, a bandeira 'meu objeto' é automaticamente posicionada junto dele.", 
 				p1,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);
 			tut.adicionarBalao("Seu objetivo é determinar as coordenadas desse objeto.", 
 				new Point(100, 40), CaixaTexto.LEFT, CaixaTexto.FIRST);
 			tut.adicionarBalao("Para isso, você deve antes definir o 'sistema de referência'.", 
-				new Point(300, 300), CaixaTexto.CENTER, 0);
+				new Point(300, 300), 0, 0);
 			tut.adicionarBalao("Primeiramente, escolha um objeto para ser a origem do sistema de referência, arrastando para cima dele a bandeira 'origem do sistema de referência'.", 
 				p2,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);
 			tut.adicionarBalao("Finalmente, escolha um 'outro' objeto para definir a orientação do eixo x, arrastando para cima dele a bandeira 'orientação do sistema de referência'.", 
 				p3,  CaixaTexto.BOTTOM, CaixaTexto.CENTER);				
 			tut.adicionarBalao("Estes dois objetos definem o eixo x, que passa por eles, e o eixo y, perpendicular ao eixo x.", 
-				new Point(300, 300), CaixaTexto.CENTER, 0);
+				new Point(300, 300), 0, 0);
 			tut.adicionarBalao("Utilize a régua para medir as coordenadas.", 
 				new Point(40, 150), CaixaTexto.LEFT, CaixaTexto.FIRST);
 			tut.adicionarBalao("Preencha as coordenadas e pressione 'terminei' para conferir sua resposta.", 
@@ -705,7 +744,7 @@ package view
 		
 		private function onFinishTutorial(e:TutorialEvent):void 
 		{
-			
+			isTutorial = false;
 		}
 		
 		private function onBalaoAbriu(e:TutorialEvent):void 
