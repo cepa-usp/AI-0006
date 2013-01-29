@@ -54,7 +54,8 @@ package cepa.LO.view
 		protected function closePanel(e:MouseEvent):void 
 		{
 			e.target.gotoAndPlay(2);
-			Actuate.tween(e.target, 0.5, { alpha:0.8 } ).onComplete(setPanelInvisbile, e.target);
+			Actuate.tween(e.target, 0.5, { alpha:0.8 } ).onComplete(setPanelInvisbile, e.target);				
+
 		}
 		
 		protected function setPanelInvisbile(d:DisplayObject):void 

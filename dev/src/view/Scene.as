@@ -85,11 +85,26 @@ package view
 		sprAboutScreen.x = Config.WIDTH / 2
 		sprAboutScreen.y = Config.HEIGHT / 2
 		
-		sprAboutScreen.addEventListener(MouseEvent.CLICK, closePanel);
-		sprInfoScreen.addEventListener(MouseEvent.CLICK, closePanel);
+		sprAboutScreen.addEventListener(MouseEvent.CLICK, closeAboutPanel);
+		sprInfoScreen.addEventListener(MouseEvent.CLICK, closeInfoPanel);
+		
 		sprAboutScreen.visible = false;	
 		sprInfoScreen.visible = false;
 
+		}
+		
+		private function closeInfoPanel(e:MouseEvent):void 
+		{
+			sprInfoScreen.gotoAndPlay(2);
+			Actuate.tween(sprInfoScreen, 0.5, { alpha:0.8 } ).onComplete(setPanelInvisbile, sprInfoScreen);				
+			
+		}
+		
+		private function closeAboutPanel(e:MouseEvent):void 
+		{
+			sprAboutScreen.gotoAndPlay(2);
+			Actuate.tween(sprAboutScreen, 0.5, { alpha:0.8 } ).onComplete(setPanelInvisbile, sprAboutScreen);				
+			
 		}
 		
 		private function addMessage():void 
