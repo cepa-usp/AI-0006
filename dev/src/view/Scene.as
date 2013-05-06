@@ -8,6 +8,7 @@ package view
 	import com.eclecticdesignstudio.motion.easing.Elastic;
 	import com.eclecticdesignstudio.motion.easing.Linear;
 	import com.eclecticdesignstudio.motion.easing.Quad;
+	//import fl.controls.Label;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -321,7 +322,7 @@ package view
 				l = ElementLabel(sprElements.getChildByName("lbl_" + e.labelChangedType.toString()));
 			}				
 				var es:ElementSprite = findElementSprite(Label(round.labels[e.labelChangedType]).element);
-				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y - es.height / 2 + 10 } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
+				Actuate.tween(l, Math.min(0.1 + Math.random(), 0.3), { x:es.x, y:es.y/* - es.height / 2 + 10*/ } ).ease(Elastic.easeOut).onComplete(function() { dispatchEvent(new Event(SceneEvent.LABELS_CREATED)) } );			
 			
 		}
 		
@@ -343,10 +344,19 @@ package view
 			var dist:Number = 99999;
 			ev.vars.changeLabelType = int(selectedLabel.name.charAt(4));
 			for each(var es:ElementSprite in elements) {
-				var newd:Number = Point.distance(new Point(es.x, es.y), new Point(selectedLabel.x, selectedLabel.y)) ;
-				if (newd < dist && !es.element.hasLabel) {
-					dist = newd;
-					sel = es.element;
+				var newd:Number = Point.distance(new Point(es.x, es.y), new Point(selectedLabel.x, selectedLabel.y));
+				if (newd < dist) {// && !es.element.hasLabel) {
+					var label:Label = getLabelByElement(es);
+					if(label == null){
+						dist = newd;
+						sel = es.element;
+					}else {
+						//trace(label.type, ev.vars.changeLabelType);
+						if (label.type == Label.TYPE_TARGET || ev.vars.changeLabelType == Label.TYPE_TARGET) {
+							dist = newd;
+							sel = es.element;
+						}
+					}
 				}
 			}
 			if (sel == null) {
@@ -354,6 +364,16 @@ package view
 			}
 			ev.vars.closerElement = sel;	
 			dispatchEvent(ev);
+		}
+		
+		private function getLabelByElement(el:ElementSprite):Label
+		{
+			for (var i:int = 0; i < 3; i++) {
+				if (Label(round.labels[i]).element == el.element) {
+					return Label(round.labels[i]);
+				}
+			}
+			return null;
 		}
 		
 		private function setLabelText(el:ElementLabel, l:Label):void {
